@@ -1,0 +1,28 @@
+{
+  "name": "capstone-back-end",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+		"db:schema": "psql -d petnotfound -f db/schema.sql",
+    "db:seed": "node --env-file=.env db/seed.js",
+		"db:reset": "npm run db:schema && npm run db:seed",
+		"dev": "node --watch --env-file=.env server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChanellVS/capstone-back-end.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ChanellVS/capstone-back-end/issues"
+  },
+  "homepage": "https://github.com/ChanellVS/capstone-back-end#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
+  }
+}
