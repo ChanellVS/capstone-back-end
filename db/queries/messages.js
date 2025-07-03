@@ -1,4 +1,4 @@
-import db from "../client";
+import db from "../client.js";
 
 export async function createMessage({sender_id, receiver_id, pet_id, content}) {
     const result = await db.query(
