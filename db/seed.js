@@ -1,10 +1,11 @@
 import db from "./client.js";
-
+import { createUser} from '/queries/users.js';
 import { createMessage } from "./queries/messages.js";
 
 const finalSeed = async () => {
     await db.connect();
     await seedMessages();
+    await seedUsers();
     await db.end();
 }
 
@@ -29,5 +30,25 @@ async function seedMessages() {
         await createMessage(message);
     }
 }
+
+
+const seedUsers = async () => {
+ console.log('Seeding users...');
+ await createUser({
+            username: 'alice',
+            email: 'alice@example.com',
+            password: 'password123',
+            location: 'New York',
+            phone_number: '123-456-7890',
+  });
+  
+  await createUser({
+    username: 'bob',
+    email: 'bob@example.com',
+    password: 'securepass',
+    location: 'Los Angeles',
+    phone_number: '987-654-3210',
+  });
+};
 
 finalSeed();
