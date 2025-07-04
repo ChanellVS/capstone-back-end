@@ -1,6 +1,11 @@
-import db from '../client.js';
+import db from "../client.js";
 
-export async function createMessage({sender_id, receiver_id, pet_id, content}) {
+export async function createMessage({
+    sender_id,
+    receiver_id,
+    pet_id,
+    content,
+}) {
     const result = await db.query(
         `INSERT INTO messages (sender_id, receiver_id, pet_id, content)
     VALUES ($1, $2, $3, $4)
@@ -29,11 +34,15 @@ export async function getMessagesByUserId(user_id) {
     const result = await db.query(
         `SELECT messages.*,
             sender.username AS sender_username,
-            receiver.username AS receiver_username
+            receiver.username AS receiver_username,
+            CASE
+                WHEN messages.sender_id = $1 THEN 'sent'
+                ELSE 'received'
+            END AS direction
         FROM messages
         JOIN users AS sender ON messages.sender_id = sender.id
         JOIN users AS receiver ON messages.receiver_id = receiver.id
-        WHERE messages.receiver_id = $1
+        WHERE messages.receiver_id = $1 OR messages.sender_id = $1
         ORDER BY messages.created_at DESC;`,
         [user_id]
     );
@@ -45,7 +54,7 @@ export async function updateMessage(messageId, senderId, content) {
         `UPDATE messages
         SET content = $1, updated_at = NOW()
         WHERE id = $2 AND sender_id = $3
-        RETURNING *;`,D
+        RETURNING *;`,
         [content, messageId, senderId]
     );
     return result.rows[0];
