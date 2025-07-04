@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -13,7 +14,7 @@ db.connect();
 
 const app = express();
 
-// Debugging mapbox token
+// Debugging mapbox token (can remove if not needed)
 console.log("Mapbox Token:", process.env.MAPBOX_TOKEN);
 
 app.use(cors());
@@ -33,7 +34,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
 
 export default app;

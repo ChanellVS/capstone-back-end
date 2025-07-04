@@ -1,5 +1,5 @@
 import express from 'express';
-import { verifyToken } from '../middleware/auth.js';
+import { verifyToken } from "../middleware/auth.js";
 import { getMessagesByPetId, getMessagesByUserId, createMessage, updateMessage, deleteMessage } from '../db/queries/messages.js';
 
 const router = express.Router();
