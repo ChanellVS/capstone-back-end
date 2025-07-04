@@ -1,4 +1,4 @@
-import db from "../client.js";
+import db from '../client.js';
 
 export async function createMessage({sender_id, receiver_id, pet_id, content}) {
     const result = await db.query(
@@ -45,7 +45,7 @@ export async function updateMessage(messageId, senderId, content) {
         `UPDATE messages
         SET content = $1, updated_at = NOW()
         WHERE id = $2 AND sender_id = $3
-        RETURNING *;`,
+        RETURNING *;`,D
         [content, messageId, senderId]
     );
     return result.rows[0];
