@@ -2,12 +2,7 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import {
-  createUser,
-  getUserByUsername,
-  getUserById
-} from '../db/queries/users.js';
-
+import { createUser, getUserByUsername, getUserById } from '../db/queries/users.js';
 import { verifyToken, newUserCheck } from '../middleware/auth.js';
 
 const router = express.Router();
