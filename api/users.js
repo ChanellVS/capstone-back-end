@@ -8,7 +8,6 @@ import {
   getUserById
 } from '../db/queries/users.js';
 
-import { createUser, getUserByUsername, getUserById } from '../db/queries/users.js';
 import { verifyToken, newUserCheck } from '../middleware/auth.js';
 
 const router = express.Router();

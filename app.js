@@ -1,6 +1,7 @@
 import db from "./db/client.js";
 db.connect();
-db.tenv.config();
+import dotenv from 'dotenv';
+dotenv.config();
 
 import messagesRouter from './api/messages.js';
 import userRouter from './api/users.js'
@@ -27,3 +28,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
+
+export default app;
