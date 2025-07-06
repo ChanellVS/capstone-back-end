@@ -49,10 +49,10 @@ const seed = async () => {
       content: 'Thank you, can you tell me more?',
     });
 
-    console.log('✅ Seeding completed successfully!');
-    await db.end();
+    console.log('Seeding completed successfully!');
   } catch (err) {
-    console.error('❌ Seeding failed:', err);
+    console.error('Seeding failed:', err);
+  } finally {
     await db.end();
   }
 };
