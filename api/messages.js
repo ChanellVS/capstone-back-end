@@ -20,7 +20,7 @@ router.post("/", verifyToken, async (req, res, next) => {
     }
 });
 
-router.get("/pet/:id", async (req, res, next) => {
+router.get("/pet/:id", verifyToken, async (req, res, next) => {
     const petId = req.params.id;
 
     try {
@@ -35,9 +35,6 @@ router.get("/pet/:id", async (req, res, next) => {
 router.get("/inbox", verifyToken, async (req, res, next) => {
     const userId = req.user.id;
 
-    if(parseInt(userId) !== req.user.id) {
-        return res.status(403).json({error: 'Access denied'});
-    }
     try {
         const inbox = await getMessagesByUserId(userId)
         res.json(inbox);
