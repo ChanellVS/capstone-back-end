@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { createUser, getUserByUsername, getUserById } from '../db/queries/users.js';
+import { getSavedPetByUserId } from '../db/queries/saved_pets.js';
 import { verifyToken, newUserCheck } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -52,5 +53,17 @@ router.get('/me', verifyToken, async (req, res, next) => {
     next(err);
   }
 });
+// -----------------------------------------------------------------------------------------------
+// Saved Pets Routes
 
+// GET /api/users/saved
+router.get('/saved', verifyToken, async (req, res, next) => {
+  const { user_id } = req.user;
+  try {
+    const savedPets = await getSavedPetByUserId({ user_id });
+    res.json(savedPets);
+  } catch (err) {
+    next(err);
+  }
+});
 export default router;
