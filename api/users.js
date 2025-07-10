@@ -11,6 +11,7 @@ const SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
 // POST /api/users/register
 router.post('/register', newUserCheck, async (req, res, next) => {
+  console.log("Received registration request:", req.body); 
   const { username, email, password, location, phone_number } = req.body;
 
   try {
@@ -20,9 +21,12 @@ router.post('/register', newUserCheck, async (req, res, next) => {
     console.log(`Registered user: ${username}`);
     res.json({ token });
   } catch (err) {
-    next(err);
+ console.error("Error during registration:", err);
+    res.status(500).json({ error: "Server error during registration." });
   }
 });
+
+ 
 
 // POST /api/users/login
 router.post('/login', async (req, res, next) => {
