@@ -1,16 +1,13 @@
-
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-import db from './db/client.js';
 import messagesRouter from './api/messages.js';
 import userRouter from './api/users.js';
 import petsRouter from './api/pets.js';
 import geocodeRouter from './utils/geocode.js';
 
 dotenv.config();
-db.connect();
 
 const app = express();
 
@@ -30,11 +27,6 @@ app.use('/api/geocode', geocodeRouter);
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Internal server error.');
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
 });
 
 export default app;
