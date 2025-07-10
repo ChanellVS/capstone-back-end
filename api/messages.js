@@ -4,7 +4,9 @@ import { getMessagesByPetId, getMessagesByUserId, createMessage, updateMessage, 
 
 const router = express.Router();
 
-router.post("/", verifyToken, async (req, res, next) => {
+router.post("/", async (req, res, next) => {
+    //const senderId = req.user?.id || req.body.sender_id; // for testing when removing the verifytoken
+
     const senderId = req.user.id;
     const { receiver_id, pet_id, content } = req.body;
 
@@ -13,6 +15,9 @@ router.post("/", verifyToken, async (req, res, next) => {
     }
     try {
         const newMessage = await createMessage({sender_id: senderId, receiver_id, pet_id, content})
+        
+        req.app.get("io")?.emit("receive_message", newMessage);
+
         res.status(201).json(newMessage);
     } catch (error) {
         console.error(error)
