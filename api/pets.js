@@ -1,5 +1,6 @@
 import { verifyToken } from '../middleware/auth.js';
 import { createPet, getPetsByCity, getAllPets, deletePet, updatePet } from '../db/queries/pets.js';
+import { savePets, deleteSavedPet } from '../db/queries/saved_pets.js';
 import { geocodeAddress } from '../utils/geocode.js';
 import express from 'express';
 
@@ -98,5 +99,42 @@ router.delete('/:id', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to delete pet.' });
   }
 });
+
+// -------------------------------------------------------------------------------------------
+// Saved Pets Routes
+
+router.post("/:id/save", verifyToken, async (req, res) => {
+    const { id } = req.params;
+    const user_id = req.user.id;
+
+    try {
+        const savedPet = await savePets({
+            user_id,
+            pet_id: id,
+            saved_at: new Date().toISOString(),
+        });
+
+        res.status(201).json(savedPet);
+    } catch (error) {
+        console.error('Error saving pet:', error);
+        res.status(500).json({ error: 'Failed to save pet.' });
+    }
+});
+
+router.delete("/:id/save", verifyToken, async (req, res) => {
+const { id } = req.params;
+const user_id = req.user.id;
+
+try {
+    const deletedPet = await deleteSavedPet({ user_id, pet_id: id });
+
+    if (!deletedPet) return res.status(404).json({ error: 'Saved pet not found' });
+
+    res.json({ message: 'Pet removed from saved list successfully' });
+} catch (error) {
+    console.error('Error removing saved pet:', error);
+    res.status(500).json({ error: 'Failed to remove saved pet.' });
+}});
+
 
 export default router;

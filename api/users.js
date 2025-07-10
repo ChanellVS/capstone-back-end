@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { createUser, getUserByUsername, getUserById } from '../db/queries/users.js';
+import { getSavedPetByUserId } from '../db/queries/saved_pets.js';
 import { verifyToken, newUserCheck } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -16,7 +17,7 @@ router.post('/register', newUserCheck, async (req, res, next) => {
     const user = await createUser({ username, email, password, location, phone_number });
     const token = jwt.sign({ id: user.id, username: user.username }, SECRET, { expiresIn: '1h' });
 
-    console.log(`✅ Registered user: ${username}`);
+    console.log(`Registered user: ${username}`);
     res.json({ token });
   } catch (err) {
     next(err);
@@ -36,7 +37,7 @@ router.post('/login', async (req, res, next) => {
 
     const token = jwt.sign({ id: user.id, username: user.username }, SECRET, { expiresIn: '1h' });
 
-    console.log(`🔓 User logged in: ${username}`);
+    console.log(`User logged in: ${username}`);
     res.json({ token });
   } catch (err) {
     next(err);
@@ -52,5 +53,17 @@ router.get('/me', verifyToken, async (req, res, next) => {
     next(err);
   }
 });
+// -----------------------------------------------------------------------------------------------
+// Saved Pets Routes
 
+// GET /api/users/saved
+router.get('/saved', verifyToken, async (req, res, next) => {
+  const { user_id } = req.user;
+  try {
+    const savedPets = await getSavedPetByUserId({ user_id });
+    res.json(savedPets);
+  } catch (err) {
+    next(err);
+  }
+});
 export default router;
