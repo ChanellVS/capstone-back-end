@@ -106,12 +106,13 @@ router.delete('/:id', verifyToken, async (req, res) => {
 router.post("/:id/save", verifyToken, async (req, res) => {
     const { id } = req.params;
     const user_id = req.user.id;
-
+    const timestamp = new Date().toISOString();
+    
     try {
         const savedPet = await savePets({
             user_id,
             pet_id: id,
-            saved_at: new Date().toISOString(),
+            saved_at: timestamp,
         });
 
         res.status(201).json(savedPet);

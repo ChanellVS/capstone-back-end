@@ -3,7 +3,7 @@ import db from "../client.js";
 // Adds pet to saved_pets table
 export async function savePets({user_id, pet_id, saved_at}){
     const result = await db.query(`
-        INSERT INTO (user_id, pet_id, saved_at)
+        INSERT INTO saved_pets (user_id, pet_id, saved_at)
         VALUES ($1, $2, $3)
         RETURNING *;
         `, [user_id, pet_id, saved_at]);
@@ -15,7 +15,7 @@ export async function getSavedPetByUserId({user_id}){
 const results = await db.query(`
     SELECT * FROM saved_id WHERE used_id = $1 ORDER BY saved_at DESC;
 `, [user_id]);
-return results.rows;
+return results.rows[0];
 }
 
 // Deletes a saved pet from the saved_pets table
