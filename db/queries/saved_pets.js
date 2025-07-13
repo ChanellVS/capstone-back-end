@@ -13,7 +13,7 @@ export async function savePets({user_id, pet_id, saved_at}){
 // Retrieves all saved pets for a user
 export async function getSavedPetByUserId({user_id}){
 const results = await db.query(`
-    SELECT * FROM saved_id WHERE used_id = $1 ORDER BY saved_at DESC;
+    SELECT * FROM saved_pets WHERE user_id = $1 ORDER BY saved_at DESC;
 `, [user_id]);
 return results.rows[0];
 }

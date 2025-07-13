@@ -62,9 +62,8 @@ router.get('/me', verifyToken, async (req, res, next) => {
 
 // GET /api/users/saved
 router.get('/saved', verifyToken, async (req, res, next) => {
-  const { user_id } = req.user;
   try {
-    const savedPets = await getSavedPetByUserId({ user_id });
+    const savedPets = await getSavedPetByUserId( { user_id: req.user.id });
     res.json(savedPets);
   } catch (err) {
     next(err);
