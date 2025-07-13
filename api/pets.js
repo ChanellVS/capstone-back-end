@@ -112,7 +112,7 @@ router.post("/:id/save", verifyToken, async (req, res) => {
         const savedPet = await savePets({
             user_id,
             pet_id: id,
-            saved_at: timestamp
+            saved_at: timestamp,
         });
 
         res.status(201).json(savedPet);
