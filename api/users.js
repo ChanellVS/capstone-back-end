@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import db from '../db/client.js';
 
 import { createUser, getUserByUsername, getUserById } from '../db/queries/users.js';
 import { getSavedPetByUserId } from '../db/queries/saved_pets.js';
@@ -25,8 +26,6 @@ router.post('/register', newUserCheck, async (req, res, next) => {
     res.status(500).json({ error: "Server error during registration." });
   }
 });
-
- 
 
 // POST /api/users/login
 router.post('/login', async (req, res, next) => {
@@ -57,6 +56,21 @@ router.get('/me', verifyToken, async (req, res, next) => {
     next(err);
   }
 });
+
+// GET /api/users
+router.get('/', verifyToken, async (req, res, next) => {
+  try {
+    const result = await db.query(
+      `SELECT id, username FROM users WHERE id != $1;`,
+      [req.user.id] // exclude current user
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
 // -----------------------------------------------------------------------------------------------
 // Saved Pets Routes
 
