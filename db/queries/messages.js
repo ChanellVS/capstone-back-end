@@ -37,19 +37,21 @@ export async function getMessagesByPetId(pet_id) {
 export async function getMessagesByUserId(user_id) {
   const result = await db.query(
     `SELECT messages.*,
-            sender.username AS sender_username,
-            receiver.username AS receiver_username,
-            CASE
-              WHEN messages.sender_id = $1 THEN 'sent'
-              ELSE 'received'
-            END AS direction
-     FROM messages
-     JOIN users AS sender ON messages.sender_id = sender.id
-     LEFT JOIN users AS receiver ON messages.receiver_id = receiver.id
-     WHERE messages.sender_id = $1
-        OR messages.receiver_id = $1
-        OR is_global = TRUE
-     ORDER BY messages.created_at DESC;`,
+       sender.username AS sender_username,
+       receiver.username AS receiver_username,
+       CASE
+         WHEN messages.sender_id = $1 THEN 'sent'
+         WHEN messages.receiver_id = $1 THEN 'received'
+         ELSE 'global'
+       END AS direction
+FROM messages
+JOIN users AS sender ON messages.sender_id = sender.id
+LEFT JOIN users AS receiver ON messages.receiver_id = receiver.id
+WHERE messages.sender_id = $1
+   OR messages.receiver_id = $1
+   OR (is_global = TRUE AND messages.sender_id != $1)
+ORDER BY messages.created_at DESC;
+`,
     [user_id]
   );
   return result.rows;

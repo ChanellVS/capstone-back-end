@@ -1,36 +1,56 @@
 import express from 'express';
 import { verifyToken } from "../middleware/auth.js";
-import { getMessagesByPetId, getMessagesByUserId, createMessage, updateMessage, deleteMessage } from '../db/queries/messages.js';
+import {
+  getMessagesByPetId,
+  getMessagesByUserId,
+  createMessage,
+  updateMessage,
+  deleteMessage
+} from '../db/queries/messages.js';
+import db from "../db/client.js"; 
 
 const router = express.Router();
 
 // POST a new message (global or private)
 router.post("/", verifyToken, async (req, res, next) => {
-    const senderId = req.user.id;
-    const { receiver_id, pet_id, content, isGlobal } = req.body;
+  const senderId = req.user.id;
+  const { receiver_id, pet_id, content, is_global } = req.body;
 
-    if (!content) {
-        return res.status(400).json({ error: "Message content is required" });
-    }
+  if (!content) {
+    return res.status(400).json({ error: "Message content is required" });
+  }
 
-    if (!isGlobal && (!receiver_id || !pet_id)) {
-        return res.status(400).json({ error: "receiver_id and pet_id are required for private messages." });
-    }
+  if (!is_global && (!receiver_id || !pet_id)) {
+    return res.status(400).json({ error: "receiver_id and pet_id are required for private messages." });
+  }
 
-    try {
-        const newMessage = await createMessage({
-            sender_id: senderId,
-            receiver_id: isGlobal ? null : receiver_id,
-            pet_id: isGlobal ? null : pet_id,
-            content
-        });
+  try {
+    const newMessage = await createMessage({
+      sender_id: senderId,
+      receiver_id: is_global ? null : receiver_id,
+      pet_id: is_global ? null : pet_id,
+      content,
+      is_global: !!is_global,
+    });
 
-        req.app.get("io")?.emit("receive_message", newMessage);
-        res.status(201).json(newMessage);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Failed to send message." });
-    }
+    // Enrich with sender_username
+    const senderQuery = await db.query(
+      `SELECT username FROM users WHERE id = $1;`,
+      [senderId]
+    );
+    const sender_username = senderQuery.rows[0]?.username || "Unknown";
+
+    const enrichedMessage = {
+      ...newMessage,
+      sender_username,
+    };
+
+    req.app.get("io")?.emit("receive_message", enrichedMessage);
+    res.status(201).json(enrichedMessage);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to send message." });
+  }
 });
 
 // GET inbox (messages for current user)
