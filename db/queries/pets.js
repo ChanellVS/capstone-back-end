@@ -28,6 +28,16 @@ export async function getPetsByCity(city) {
     return result.rows;
 }
 
+export async function getPetById(id) {
+  const result = await db.query(
+    `SELECT * 
+       FROM pets 
+      WHERE id = $1`,
+    [id]
+  );
+  return result.rows[0] || null;
+}
+
 export async function updatePet(id, owner_id, updates) {
   const { name, type, status, description, image_url, location } = updates;
 

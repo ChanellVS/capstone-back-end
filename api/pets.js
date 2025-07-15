@@ -1,5 +1,5 @@
 import { verifyToken } from '../middleware/auth.js';
-import { createPet, getPetsByCity, getAllPets, deletePet, updatePet } from '../db/queries/pets.js';
+import { createPet, getPetsByCity, getAllPets, deletePet, updatePet, getPetById } from '../db/queries/pets.js';
 import { savePets, deleteSavedPet } from '../db/queries/saved_pets.js';
 import { geocodeAddress } from '../utils/geocode.js';
 import express from 'express';
