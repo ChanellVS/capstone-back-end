@@ -1,36 +1,47 @@
 import express from 'express';
 import { verifyToken } from "../middleware/auth.js";
-import { getMessagesByPetId, getMessagesByUserId, createMessage, updateMessage, deleteMessage } from '../db/queries/messages.js';
+import {
+  getMessagesByPetId,
+  getMessagesByUserId,
+  createMessage,
+  updateMessage,
+  deleteMessage
+} from '../db/queries/messages.js';
 
 const router = express.Router();
 
 // POST a new message (global or private)
 router.post("/", verifyToken, async (req, res, next) => {
-    const senderId = req.user.id;
-    const { receiver_id, pet_id, content, isGlobal } = req.body;
+  const senderId = req.user.id;
 
-    if (!content) {
-        return res.status(400).json({ error: "Message content is required" });
-    }
+  const { receiver_id, pet_id, content, is_global = false } = req.body;
 
-    if (!isGlobal && (!receiver_id || !pet_id)) {
-        return res.status(400).json({ error: "receiver_id and pet_id are required for private messages." });
-    }
+  const isGlobal = is_global === true || is_global === "true";
 
-    try {
-        const newMessage = await createMessage({
-            sender_id: senderId,
-            receiver_id: isGlobal ? null : receiver_id,
-            pet_id: isGlobal ? null : pet_id,
-            content
-        });
+  if (!content) {
+    return res.status(400).json({ error: "Message content is required." });
+  }
 
-        req.app.get("io")?.emit("receive_message", newMessage);
-        res.status(201).json(newMessage);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Failed to send message." });
-    }
+
+  if (!isGlobal && (!receiver_id || !pet_id)) {
+    return res.status(400).json({ error: "receiver_id and pet_id are required for private messages." });
+  }
+
+  try {
+    const newMessage = await createMessage({
+      sender_id: senderId,
+      receiver_id: isGlobal ? null : receiver_id,
+      pet_id: isGlobal ? null : pet_id,
+      content,
+      is_global: isGlobal
+    });
+
+    req.app.get("io")?.emit("receive_message", newMessage);
+    res.status(201).json(newMessage);
+  } catch (error) {
+    console.error("Message creation failed:", error);
+    res.status(500).json({ error: "Failed to send message." });
+  }
 });
 
 // GET inbox (messages for current user)
