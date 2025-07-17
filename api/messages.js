@@ -22,7 +22,6 @@ router.post("/", verifyToken, async (req, res, next) => {
     return res.status(400).json({ error: "Message content is required." });
   }
 
-
   if (!isGlobal && (!receiver_id || !pet_id)) {
     return res.status(400).json({ error: "receiver_id and pet_id are required for private messages." });
   }

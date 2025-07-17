@@ -11,15 +11,33 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173"],
     methods: ["GET", "POST"],
   },
 });
 
 app.set("io", io);
 
+const userSockets = {}
+
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
+
+  socket.on("register", (userId) => {
+    userSockets[userId] = socket.id
+  })
+
+  socket.on("private-message", ({ toUserId, message }) => {
+    const recipientSocketId = userSockets[toUserId]
+
+    if (recipientSocketId) {
+      io.to(recipientSocketId).emit("private-message", { from: socket.id, message }
+
+      )
+    } else {
+      console.log("There is no user with that ID", toUserId)
+    }
+  })
 
   socket.on("send_message", (data) => {
     console.log("Message received:", data);
@@ -34,3 +52,4 @@ io.on("connection", (socket) => {
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
