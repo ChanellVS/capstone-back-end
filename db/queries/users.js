@@ -9,23 +9,20 @@ export async function createUser({ username, email, password, location, phone_nu
     `
     INSERT INTO users (username, email, password, location, phone_number)
     VALUES ($1, $2, $3, $4, $5)
-    ON CONFLICT (username) DO NOTHING
     RETURNING id, username;
     `,
     [username, email, hashed, location, phone_number]
   );
-
   if (result.rows.length > 0) {
     return result.rows[0];
+  } else {
+    // Fetch existing user if already present
+    const fallback = await db.query(
+      `SELECT id, username FROM users WHERE username = $1`,
+      [username]
+    );
+    return fallback.rows[0];
   }
-
-  // Fetch existing user if already present
-  const fallback = await db.query(
-    `SELECT id, username FROM users WHERE username = $1`,
-    [username]
-  );
-
-  return fallback.rows[0];
 }
 
 // Get user by username

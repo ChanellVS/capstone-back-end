@@ -60,6 +60,7 @@ export async function getMessagesByUserId(user_id) {
             r.username AS receiver_username,
             p.name     AS pet_name,
             CASE
+              WHEN m.is_global = TRUE THEN 'global'
               WHEN m.sender_id = $1 THEN 'sent'
               ELSE 'received'
             END AS direction
