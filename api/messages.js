@@ -5,15 +5,26 @@ import {
   getMessagesByUserId,
   createMessage,
   updateMessage,
-  deleteMessage
+  deleteMessage,
+  getGlobalMessages
 } from '../db/queries/messages.js';
 
 const router = express.Router();
 
-// POST a new message (global or private)
-router.post("/", verifyToken, async (req, res, next) => {
-  const senderId = req.user.id;
+//GET global messages (no token required for read)
+router.get("/global", async (req, res) => {
+  try {
+    const globalMessages = await getGlobalMessages();
+    res.json(globalMessages);
+  } catch (error) {
+    console.error("Failed to fetch global messages:", error);
+    res.status(500).json({ error: "Something went wrong." });
+  }
+});
 
+//POST a new message (global or private)
+router.post("/", verifyToken, async (req, res) => {
+  const senderId = req.user.id;
   const { receiver_id, pet_id, content, is_global = false } = req.body;
 
   const isGlobal = is_global === true || is_global === "true";
@@ -43,8 +54,8 @@ router.post("/", verifyToken, async (req, res, next) => {
   }
 });
 
-// GET inbox (messages for current user)
-router.get("/inbox", verifyToken, async (req, res, next) => {
+//GET inbox (messages for current user)
+router.get("/inbox", verifyToken, async (req, res) => {
   try {
     const inbox = await getMessagesByUserId(req.user.id);
     res.json(inbox);
@@ -54,8 +65,8 @@ router.get("/inbox", verifyToken, async (req, res, next) => {
   }
 });
 
-// GET all messages for a pet
-router.get("/pet/:id", verifyToken, async (req, res, next) => {
+//GET all messages for a pet
+router.get("/pet/:id", verifyToken, async (req, res) => {
   try {
     const messages = await getMessagesByPetId(req.params.id);
     res.json(messages);
@@ -65,8 +76,8 @@ router.get("/pet/:id", verifyToken, async (req, res, next) => {
   }
 });
 
-// PUT edit a message
-router.put("/:id", verifyToken, async (req, res, next) => {
+//PUT edit a message
+router.put("/:id", verifyToken, async (req, res) => {
   const { content } = req.body;
 
   try {
@@ -81,8 +92,8 @@ router.put("/:id", verifyToken, async (req, res, next) => {
   }
 });
 
-// DELETE a message
-router.delete("/:id", verifyToken, async (req, res, next) => {
+//DELETE a message
+router.delete("/:id", verifyToken, async (req, res) => {
   try {
     const deleted = await deleteMessage(req.params.id, req.user.id);
     if (!deleted) {
