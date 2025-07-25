@@ -1,29 +1,32 @@
 import db from "../client.js";
 
 // Adds pet to saved_pets table
-export async function savePets({user_id, pet_id, saved_at}){
+export async function savePets({ user_id, pet_id, saved_at }) {
     const result = await db.query(`
         INSERT INTO saved_pets (user_id, pet_id, saved_at)
         VALUES ($1, $2, $3)
         RETURNING *;
-        `, [user_id, pet_id, saved_at]);
-        return result.rows[0]
+    `, [user_id, pet_id, saved_at]);
+    return result.rows[0];
 }
 
-// Retrieves all saved pets for a user
-export async function getSavedPetByUserId({user_id}){
-const results = await db.query(`
-    SELECT * FROM saved_pets 
-    JOIN  pets
-    ON saved_pets.pet_id = pets.id WHERE user_id = $1 ORDER BY saved_at DESC;
-`, [user_id]);
-return results.rows;
+// Retrieves all saved pets for a user (including owner username)
+export async function getSavedPetByUserId({ user_id }) {
+    const results = await db.query(`
+        SELECT pets.*, users.username AS owner_username, saved_pets.saved_at
+        FROM saved_pets
+        JOIN pets ON saved_pets.pet_id = pets.id
+        JOIN users ON pets.owner_id = users.id
+        WHERE saved_pets.user_id = $1
+        ORDER BY saved_pets.saved_at DESC;
+    `, [user_id]);
+    return results.rows;
 }
 
 // Deletes a saved pet from the saved_pets table
-export async function deleteSavedPet({user_id, pet_id}){
+export async function deleteSavedPet({ user_id, pet_id }) {
     const result = await db.query(`
-        DELETE FROM saved_pets WHERE user_id = $1 AND pet_id= $2 RETURNING *;
-        `, [user_id, pet_id]);
-        return result.rows[0];
+        DELETE FROM saved_pets WHERE user_id = $1 AND pet_id = $2 RETURNING *;
+    `, [user_id, pet_id]);
+    return result.rows[0];
 }
